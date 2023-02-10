@@ -26,12 +26,12 @@ def before_request():
     """
     Before request handler
     """
-    ex_paths = ['/api/v1/status/', '/api/v1/unauthorized/',
+    excluded_paths = ['/api/v1/status/', '/api/v1/unauthorized/',
                 '/api/v1/forbidden/']
 
     if auth is None:
         pass
-    if auth.require_auth(request.path, ex_paths) is False:
+    if auth.require_auth(request.path, excluded_paths) is False:
         pass
     if auth.authorization_header(request) is None:
         abort(401)
