@@ -3,6 +3,8 @@
 Basic Authentication
 """
 from api.v1.auth.auth import Auth
+import base64
+from typing import TypeVar, Tuple
 
 
 class BasicAuth(Auth):
@@ -35,6 +37,7 @@ class BasicAuth(Auth):
             return None
         try:
             decoded_value = base64.b64decode(base64_authorization_header)
-            return decoded_value.decode('utf-8')
+            decoded_value = decoded_value.decode('utf-8')
+            return decoded_value
         except Exception as e:
             return None
