@@ -38,6 +38,6 @@ class BasicAuth(Auth):
         try:
             decoded_value = base64.b64decode(base64_authorization_header)
             decoded_value = decoded_value.decode('utf-8')
-            return decoded_value
         except Exception as e:
             return None
+        return decoded_value
