@@ -14,7 +14,18 @@ class Auth:
         """
         a method that returns False
         """
-        return False
+        if path is not None and excluded_paths is not None:
+            for exc_path in map(lambda x: x.strip(), excluded_paths):
+                pattern = ''
+                if exc_path[-1] == "*":
+                    pattern = "{}.*".format(exc_path[0:-1])
+                elif exc_path[-1] == "/":
+                    pattern = "{}/*".format(exc_path[0:-1])
+                else:
+                    pattern = "{}/*".format(exc_path)
+                if re.match(pattern, path):
+                    return False
+        return True
 
     def authorization_header(self, request=None) -> str:
         """
