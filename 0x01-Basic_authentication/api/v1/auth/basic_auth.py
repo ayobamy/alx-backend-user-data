@@ -86,9 +86,9 @@ class BasicAuth(Auth):
         """
         retrieves the User instance for a request
         """
-        aut_head = request.headers.get(request)
+        aut_head = self.authorization_header(request)
         b64_aut_head = self.extract_base64_authorization_header(aut_head)
         d_b64_aut_head = self.decode_base64_authorization_header(b64_aut_head)
-        credentials = self.extract_user_credentials(d_b64_aut_head)
-        user = self.user_object_from_credentials(*credentials)
+        user_email, user_pwd = self.extract_user_credentials(d_b64_aut_head)
+        user = self.user_object_from_credentials(user_email, user_pwd)
         return user
