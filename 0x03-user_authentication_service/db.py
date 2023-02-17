@@ -20,7 +20,7 @@ class DB:
     def __init__(self) -> None:
         """Initialize a new DB instance
         """
-        self._engine = create_engine("sqlite:///a.db")
+        self._engine = create_engine("postgres:///a.db", echo=False)
         Base.metadata.drop_all(self._engine)
         Base.metadata.create_all(self._engine)
         self.__session = None
@@ -35,37 +35,42 @@ class DB:
         return self.__session
 
     def add_user(self, email: str, hashed_password: str) -> User:
-        """
-        Saves a user to the database
-        """
-        user = User(email=email, hashed_password=hashed_password)
-
-        self._session.add(user)
+        """this method saves the user to the database"""
+        new_user = User(email=email, hashed_password=hashed_password)
+        self._session.add(new_user)
         self._session.commit()
-
-        return user
+        return new_user
 
     def find_user_by(self, **kwargs) -> User:
+        """ Find user by key_pairs arguements
         """
-        returns the first row found in the users
-        """
-        try:
-            user = self._session.query(User).filter_by(**kwargs).first()
-        except TypeError:
-            InvalidRequestError
+        if not kwargs or not self.valid_query_args(**kwargs):
+            raise InvalidRequestError
+
+        user = self._session.query(User).filter_by(**kwargs).first()
 
         if not user:
             raise NoResultFound
-        return user
+        else:
+            return user
 
     def update_user(self, user_id: int, **kwargs) -> None:
-        """ updates user """
-        user = self.find_user_by(id=user_id)
+        """Update user based on user ID
+        """
+        if not self.valid_query_args(**kwargs):
+            raise ValueError
 
-        for key, value in kwargs.items():
-            if hasattr(user, key):
-                setattr(user, key, value)
-            else:
-                raise ValueError
+        user = self.find_user_by(id=user_id)
+        for k, v in kwargs.items():
+            setattr(user, k, v)
 
         self._session.commit()
+
+    def valid_query_args(self, **kwargs):
+        """Get users table columns
+        """
+        columns = User.__table__.columns.keys()
+        for key in kwargs.keys():
+            if key not in columns:
+                return False
+        return True
